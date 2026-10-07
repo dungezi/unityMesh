@@ -1,0 +1,22 @@
+PASS ReductionPreservesData
+PASS PaintedProtection
+PASS UVSeamsSurvive
+PASS MovingShapesProtected
+PASS CancellationIsNonDestructive
+PASS VertexAndUVEdits
+PASS FlatShadingPreservesExtendedSkin
+PASS ExtendedSkinReductionRejected
+PASS MultiFrameExpressions
+PASS PosedPreviewAndPrefab
+PASS UndoRestoresEdits
+PASS CleanupKeepsUVAndShapes
+PASS LargeMeshUsesUInt32
+PASS ZeroUVChannels
+PASS ShaderCompiles
+PASS StaticSceneHandleAndUndo
+PASS SkinnedSceneHandleWithActiveExpressions
+PASS PreviewVisibility
+PASS ExpressionPreviewDefersGeometry
+PASS MultiStepWindowUndoRedo
+PASS SceneCameraNavigationShortcuts
+Unity 2022.3.22f1; 21/21 cases passed.

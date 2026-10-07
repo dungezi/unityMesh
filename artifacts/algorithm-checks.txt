@@ -1,0 +1,8 @@
+PASS ReductionAndAttributes
+PASS ProtectedVertices
+PASS WeightInterpolation
+PASS ShapeFrames
+PASS UVSeams
+PASS Cancellation
+PASS ZeroWidthBounds
+Managed algorithm tests: 7/7 passed. Unity engine/editor integration tests were not run.

@@ -1,0 +1,7 @@
+{
+  "staged_files_scanned": 106,
+  "archive_entries_scanned": 160,
+  "findings": [],
+  "result": "PASS",
+  "scope": "Pattern-based review of staged text and release archive contents; no matched values are logged."
+}

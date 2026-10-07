@@ -1,0 +1,5 @@
+PASS Unity AssetDatabase.ImportPackage
+PASS imported C# sources match package sources
+PASS imported shader
+PASS Unity native ExportPackage
+Unity 2022.3.22f1

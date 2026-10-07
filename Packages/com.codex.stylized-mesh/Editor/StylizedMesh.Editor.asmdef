@@ -1,0 +1,7 @@
+{
+  "name": "StylizedMesh.Editor",
+  "rootNamespace": "StylizedMesh",
+  "includePlatforms": ["Editor"],
+  "references": [],
+  "autoReferenced": true
+}

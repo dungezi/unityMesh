@@ -1,0 +1,10 @@
+{
+  "name": "com.codex.stylized-mesh",
+  "version": "1.0.1",
+  "displayName": "Stylized Mesh Studio / 网格改模工具",
+  "description": "Non-destructive vertex editing, UV-aware simplification and stylized mesh processing for static and skinned meshes.",
+  "unity": "2022.3",
+  "author": { "name": "Stylized Mesh Studio" },
+  "repository": { "type": "git", "url": "https://github.com/dungezi/unityMesh.git" },
+  "keywords": ["mesh", "editor", "uv", "avatar", "simplification"]
+}

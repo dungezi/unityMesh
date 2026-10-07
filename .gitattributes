@@ -1,0 +1,10 @@
+* text=auto
+*.cs text eol=lf
+*.shader text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.py text eol=lf
+*.ps1 text eol=crlf
+*.meta text eol=lf
+*.unitypackage binary
+*.zip binary
