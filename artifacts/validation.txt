@@ -19,4 +19,7 @@ PASS PreviewVisibility
 PASS ExpressionPreviewDefersGeometry
 PASS MultiStepWindowUndoRedo
 PASS SceneCameraNavigationShortcuts
-Unity 2022.3.22f1; 21/21 cases passed.
+PASS DenseExpressionsDoNotLockDefaultReduction
+PASS FullProtectionReturnsUnchangedCopy
+PASS StrongPresetReducesSplitUVs
+Unity 2022.3.22f1; 24/24 cases passed.

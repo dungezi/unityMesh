@@ -58,7 +58,8 @@ public static class ValidationRunner
             CancellationIsNonDestructive, VertexAndUVEdits, FlatShadingPreservesExtendedSkin, ExtendedSkinReductionRejected,
             MultiFrameExpressions, PosedPreviewAndPrefab, UndoRestoresEdits, CleanupKeepsUVAndShapes, LargeMeshUsesUInt32, ZeroUVChannels, ShaderCompiles,
             StaticSceneHandleAndUndo, SkinnedSceneHandleWithActiveExpressions, PreviewVisibility,
-            ExpressionPreviewDefersGeometry, MultiStepWindowUndoRedo, SceneCameraNavigationShortcuts };
+            ExpressionPreviewDefersGeometry, MultiStepWindowUndoRedo, SceneCameraNavigationShortcuts,
+            DenseExpressionsDoNotLockDefaultReduction, FullProtectionReturnsUnchangedCopy, StrongPresetReducesSplitUVs };
         foreach (var test in cases)
         {
             try { test(); results.Add("PASS " + test.Method.Name); }
@@ -181,6 +182,51 @@ public static class ValidationRunner
         Check(index >= 0, "Expression-moving vertex lost.");
         var delta = new Vector3[reduced.vertexCount]; reduced.GetBlendShapeFrameVertices(0, 1, delta, null, null);
         Check(Close(delta[index], new Vector3(0, 0.2f, 0)), "Protected expression offset changed.");
+    }
+
+    private static void DenseExpressionsDoNotLockDefaultReduction()
+    {
+        var source = Grid(16);
+        var delta = Enumerable.Repeat(new Vector3(0, 0.01f, 0), source.vertexCount).ToArray();
+        for (int i = 0; i < 64; i++) source.AddBlendShapeFrame("FullMeshExpression" + i, 100, delta, null, null);
+        var options = new ReduceSettings();
+        ReductionReport report;
+        var reduced = Track(MeshOperations.Reduce(source, null, options, out report));
+        Check(report.Reduced && !report.FullyProtected, "Default settings locked all dense expression vertices.");
+        Check(reduced.blendShapeCount == 64, "Disabling expression locking removed expression data.");
+        var result = new Vector3[reduced.vertexCount];
+        reduced.GetBlendShapeFrameVertices(63, 0, result, null, null);
+        Check(result.All(v => Close(v, delta[0])), "Uniform expression displacement changed during reduction.");
+        Check(source.blendShapeCount == 64 && source.vertexCount == 256, "Dense expression source was changed.");
+    }
+
+    private static void FullProtectionReturnsUnchangedCopy()
+    {
+        var source = Grid(8);
+        var delta = Enumerable.Repeat(new Vector3(0, 0.01f, 0), source.vertexCount).ToArray();
+        source.AddBlendShapeFrame("EveryVertexMoves", 100, delta, null, null);
+        ReductionReport report;
+        var reduced = Track(MeshOperations.Reduce(source, null, ReduceSettings.Conservative(), out report));
+        Check(report.FullyProtected && !report.Reduced && report.lockedVertexCount == source.vertexCount, "Full expression protection not reported.");
+        Check(reduced != source && reduced.vertices.SequenceEqual(source.vertices) && reduced.triangles.SequenceEqual(source.triangles), "Full protection changed the mesh.");
+        Check(reduced.blendShapeCount == 1, "Full protection lost expression data.");
+        bool canceled = false;
+        try { MeshOperations.Reduce(source, null, ReduceSettings.Conservative(), p => true); }
+        catch (OperationCanceledException) { canceled = true; }
+        Check(canceled, "Fully protected early exit ignored cancellation.");
+    }
+
+    private static void StrongPresetReducesSplitUVs()
+    {
+        var source = Grid(12); int[] map;
+        var split = Track(MeshOperations.FlatShade(source, out map));
+        var uv = split.uv;
+        for (int i = 0; i < uv.Length; i++) uv[i] += new Vector2((i / 3) % 3 * 0.01f, (i / 3) % 5 * 0.01f);
+        split.uv = uv;
+        ReductionReport report;
+        var reduced = Track(MeshOperations.Reduce(split, null, ReduceSettings.Strong(), out report));
+        Check(report.Reduced && MeshOperations.TriangleCount(reduced) <= MeshOperations.TriangleCount(split) * 0.6f, "Strong preset failed to simplify dense split UV boundaries.");
+        Check(reduced.subMeshCount == split.subMeshCount && reduced.uv.Length == reduced.vertexCount, "Strong reduction lost material or UV layout.");
     }
 
     private static void CancellationIsNonDestructive()

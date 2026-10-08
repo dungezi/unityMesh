@@ -17,6 +17,11 @@ artifacts/*
 !artifacts/distribution-checks.txt
 !artifacts/validation-status.json
 !artifacts/privacy-checks.json
+!artifacts/avatar-validation.json
 __pycache__/
 *.pyc
 .github-publish-state.json
+/*.fbx
+/*.fbx.meta
+ValidationProject/Assets/LocalAvatarValidation/
+ValidationProject/Assets/LocalAvatarValidation.meta

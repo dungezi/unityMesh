@@ -1,0 +1,121 @@
+{
+    "version": "1.0.2",
+    "status": "PASS",
+    "source_sha256": "7d2b8286b389c33e6d3ac051b7b1681d02212aeb1fe76efb6ac1880becc026a5",
+    "mesh_count": 16,
+    "checks": "Local supplied FBX: strong preset reduction, all expression names/frame counts/weights and finite vertex deltas, UV layout, material slots, bind poses and normalized skinning weights. No model or expression names included.",
+    "parts": [
+        {
+            "index": 0,
+            "original_triangles": 10524,
+            "reduced_triangles": 5262,
+            "expressions": 757,
+            "locked_vertices": 0
+        },
+        {
+            "index": 1,
+            "original_triangles": 22570,
+            "reduced_triangles": 11794,
+            "expressions": 63,
+            "locked_vertices": 6725
+        },
+        {
+            "index": 2,
+            "original_triangles": 3118,
+            "reduced_triangles": 1559,
+            "expressions": 5,
+            "locked_vertices": 111
+        },
+        {
+            "index": 3,
+            "original_triangles": 1780,
+            "reduced_triangles": 1196,
+            "expressions": 0,
+            "locked_vertices": 734
+        },
+        {
+            "index": 4,
+            "original_triangles": 5780,
+            "reduced_triangles": 2889,
+            "expressions": 4,
+            "locked_vertices": 2165
+        },
+        {
+            "index": 5,
+            "original_triangles": 3829,
+            "reduced_triangles": 1913,
+            "expressions": 3,
+            "locked_vertices": 943
+        },
+        {
+            "index": 6,
+            "original_triangles": 5298,
+            "reduced_triangles": 2649,
+            "expressions": 8,
+            "locked_vertices": 2687
+        },
+        {
+            "index": 7,
+            "original_triangles": 260,
+            "reduced_triangles": 130,
+            "expressions": 0,
+            "locked_vertices": 0
+        },
+        {
+            "index": 8,
+            "original_triangles": 2844,
+            "reduced_triangles": 1422,
+            "expressions": 3,
+            "locked_vertices": 868
+        },
+        {
+            "index": 9,
+            "original_triangles": 3272,
+            "reduced_triangles": 1636,
+            "expressions": 1,
+            "locked_vertices": 785
+        },
+        {
+            "index": 10,
+            "original_triangles": 3088,
+            "reduced_triangles": 1544,
+            "expressions": 5,
+            "locked_vertices": 665
+        },
+        {
+            "index": 11,
+            "original_triangles": 8089,
+            "reduced_triangles": 4043,
+            "expressions": 40,
+            "locked_vertices": 2213
+        },
+        {
+            "index": 12,
+            "original_triangles": 712,
+            "reduced_triangles": 356,
+            "expressions": 0,
+            "locked_vertices": 0
+        },
+        {
+            "index": 13,
+            "original_triangles": 2276,
+            "reduced_triangles": 1138,
+            "expressions": 17,
+            "locked_vertices": 1398
+        },
+        {
+            "index": 14,
+            "original_triangles": 1178,
+            "reduced_triangles": 700,
+            "expressions": 5,
+            "locked_vertices": 1012
+        },
+        {
+            "index": 15,
+            "original_triangles": 660,
+            "reduced_triangles": 330,
+            "expressions": 0,
+            "locked_vertices": 0
+        }
+    ]
+}

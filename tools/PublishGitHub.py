@@ -83,6 +83,8 @@ def main():
               ROOT / "artifacts/validation.txt", ROOT / "artifacts/algorithm-checks.txt",
               ROOT / "artifacts/import-validation.txt", ROOT / "artifacts/validation-status.json",
               ROOT / "artifacts/privacy-checks.json"]
+    if (ROOT / "artifacts/avatar-validation.json").is_file():
+        assets.append(ROOT / "artifacts/avatar-validation.json")
     if not all(path.is_file() for path in assets):
         raise RuntimeError("Build and verify the release assets first")
     if git("status", "--porcelain", capture=True).strip():

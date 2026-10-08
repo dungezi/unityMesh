@@ -15,9 +15,22 @@ namespace StylizedMesh
         public bool uvSeams = true;
         public bool uvFoldovers = true;
         public bool materialBoundaries = true;
-        public bool movingBlendShapeVertices = true;
+        public bool movingBlendShapeVertices;
         public bool boneBoundaries = true;
         public bool curvature;
+
+        public static ReduceSettings Conservative()
+        { return new ReduceSettings { quality = 0.65f, curvature = true, movingBlendShapeVertices = true }; }
+
+        public static ReduceSettings Strong()
+        { return new ReduceSettings { quality = 0.2f, borders = false, uvSeams = false, uvFoldovers = false }; }
+    }
+
+    public sealed class ReductionReport
+    {
+        public int originalTriangles, reducedTriangles, vertexCount, lockedVertexCount;
+        public bool FullyProtected { get { return vertexCount > 0 && lockedVertexCount == vertexCount; } }
+        public bool Reduced { get { return reducedTriangles < originalTriangles; } }
     }
 
     public static class MeshOperations
@@ -142,11 +155,25 @@ namespace StylizedMesh
 
         public static Mesh Reduce(Mesh source, bool[] protection, ReduceSettings settings, Func<float, bool> cancel = null)
         {
+            ReductionReport report;
+            return Reduce(source, protection, settings, out report, cancel);
+        }
+
+        public static Mesh Reduce(Mesh source, bool[] protection, ReduceSettings settings, out ReductionReport report, Func<float, bool> cancel = null)
+        {
+            report = new ReductionReport();
             Validate(source);
+            report.originalTriangles = report.reducedTriangles = TriangleCount(source);
+            report.vertexCount = source.vertexCount;
             using (var counts = source.GetBonesPerVertex())
                 foreach (byte count in counts)
                     if (count > 4) throw new InvalidOperationException("该网格有超过 4 个骨骼影响的顶点。减面暂不支持；顶点编辑与平面着色仍会保留全部权重。");
             if (settings.quality >= 0.99999f) return Clone(source);
+            if (cancel != null && cancel(0)) throw new OperationCanceledException();
+            var mask = ReductionMask(source, protection, settings);
+            foreach (bool locked in mask) if (locked) report.lockedVertexCount++;
+            // Do not load/interpolate hundreds of expression frames for an impossible collapse.
+            if (report.FullyProtected) return Clone(source);
             var simplifier = new MeshSimplifier();
             var options = SimplificationOptions.Default;
             options.PreserveBorderEdges = settings.borders;
@@ -166,13 +193,14 @@ namespace StylizedMesh
                 var uv = new List<Vector4>(); source.GetUVs(channel, uv);
                 simplifier.SetUVs(channel, uv, source.GetVertexAttributeDimension(attribute));
             }
-            simplifier.SetProtectedVertices(ReductionMask(source, protection, settings));
+            simplifier.SetProtectedVertices(mask);
             simplifier.CancellationRequested = cancel;
             simplifier.SimplifyMesh(Mathf.Clamp(settings.quality, 0.01f, 1f));
             Mesh result = simplifier.ToMesh();
             result.hideFlags = HideFlags.HideAndDontSave;
             result.name = source.name;
             KeepBounds(result, source.bounds);
+            report.reducedTriangles = TriangleCount(result);
             return result;
         }
 

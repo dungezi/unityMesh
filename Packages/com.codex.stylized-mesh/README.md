@@ -4,13 +4,13 @@
 
 ## 安装与打开
 
-1. 从 [GitHub Releases](https://github.com/dungezi/unityMesh/releases) 下载 `StylizedMeshStudio-1.0.1.unitypackage` 并导入你的 Unity 项目，等待脚本编译。
+1. 从 [GitHub Releases](https://github.com/dungezi/unityMesh/releases) 下载 `StylizedMeshStudio-1.0.2.unitypackage` 并导入你的 Unity 项目，等待脚本编译。
 2. 打开菜单 **Tools → Stylized Mesh Studio → 网格改模工具**。
 3. 指定完整模型根对象，点击 **载入并创建预览**。选择根对象时应包含全部骨骼，避免仅选择脸或头发的子对象。
 
 也可以在 Package Manager 中选择 **Add package from disk**，指定 `Packages/com.codex.stylized-mesh/package.json`。两种安装方式择一，不要同时安装。UPM 压缩包需先解压；本地包目录应长期保留。
 
-从 GitHub 安装时，在 Package Manager 中选择 **Add package from git URL**，填写 `https://github.com/dungezi/unityMesh.git?path=/Packages/com.codex.stylized-mesh#v1.0.1`。此地址固定到已发布版本。
+从 GitHub 安装时，在 Package Manager 中选择 **Add package from git URL**，填写 `https://github.com/dungezi/unityMesh.git?path=/Packages/com.codex.stylized-mesh#v1.0.2`。此地址固定到已发布版本。
 
 若提示网格不可读，在模型导入设置中启用 **Read/Write**。工具不会自动修改模型导入器。支持 MeshFilter + MeshRenderer 与 SkinnedMeshRenderer，仅处理三角形网格。
 
@@ -36,7 +36,11 @@
 
 在 **减面** 页选择保留率。“保守预设”偏重保形，“头发 / 色块预设”用于较强简化。每次减面基于当前结果，若要重新比较不同参数，先还原当前部件。
 
-默认保护开放边界、UV 接缝、UV 折叠边界、材质交界、表情移动顶点和骨骼主权重交界。可以在顶点编辑中选择眼睛、嘴巴或标志附近的顶点，再点击 **保护选中顶点**。保护会增加一圈缓冲范围，同位置拆点也会受到保护。
+常规预设默认保护开放边界、UV 接缝、UV 折叠边界、材质交界和骨骼主权重交界。**表情数据始终保留**；“保护表情移动区域”额外固定所有表情中移动的顶点，常规、头发和强减面预设默认关闭，保守预设开启。含大量全身表情的模型可能因此锁住全部顶点。
+
+强减面预设保留率为 20%，允许简化开放边界、UV 接缝及 UV 折叠边界，仍保留手动保护、材质交界与骨骼主权重交界约束。UV 拉伸或边界形状变化的风险增加，请检查贴图。保留率可以继续手动调整。
+
+可以在顶点编辑中选择眼睛、嘴巴或标志附近的顶点，再点击 **保护选中顶点**。保护会增加一圈缓冲范围，同位置拆点也会受到保护。减面后会显示固定顶点数；无面数变化时明确显示“未减面”并保留当前网格，不新增撤销状态。未达到目标保留率时会提示约束限制。
 
 保护点用于减面约束，**并不禁止用户手工移动这些点**。大量保护可能使实际三角形数达不到目标，这是正常结果。减面保留形态键的名称、顺序、帧权重与位移数据，但简化后的形状仍是近似，不能保证所有口型和眨眼完全一致。
 
@@ -78,9 +82,9 @@
 
 - 已用本机 **Unity 2022.3.22f1 的真实程序集**完成全部 C# 源码与引擎内测试代码的编译检查。
 - 实际执行了 7 项独立的托管算法测试，全部通过：减面与属性、保护点、骨骼权重插值、表情帧插值、UV 接缝、取消操作、零宽度网格。
-- **Unity 2022.3.22f1 引擎内的 21 项自动集成测试全部通过**，覆盖网格与 UV 编辑、蒙皮和表情、Undo、Prefab 保存、Shader，以及静态/蒙皮场景手柄的移动、旋转和缩放。包括预览开关与刷新后的状态、连续表情更新的延后顶点计算、连续多步撤销/重做与新操作后的历史分支检查，以及右键相机导航与顶点工具快捷键的事件分流。开启表情、非均匀缩放和多骨骼混合的组合也已检查。
+- **Unity 2022.3.22f1 引擎内的 24 项自动集成测试全部通过**，覆盖网格与 UV 编辑、蒙皮和表情、Undo、Prefab 保存、Shader，以及静态/蒙皮场景手柄的移动、旋转和缩放。包括预览开关与刷新后的状态、连续表情更新的延后顶点计算、连续多步撤销/重做与新操作后的历史分支检查、右键相机导航与顶点工具快捷键的事件分流，以及密集表情、全部顶点保护和拆分 UV 边界的减面。
 - 额外检查 Unity 的 `AssetDatabase.ImportPackage` 导入，并由 Unity 原生导出安装包。场景手柄自动测试调用实际编辑逻辑，但并不代替人工鼠标操作的界面检查。
-- 未取得 Eku / Mafuyu 模型文件，因此没有对这两款真实模型执行改模测试。
+- 已使用用户本地提供的一个 FBX 检查实际减面与数据保留，匿名结果见 `artifacts/avatar-validation.json`。原模型与带模型信息的诊断脚本和日志不进入公开仓库。未对 Eku / Mafuyu 模型单独测试；实际表情外观与 VRChat 上传仍需人工检查。
 - 减面支持每顶点最多 4 个骨骼影响，并重新插值、归一化权重。超过 4 个影响时明确拒绝减面，避免静默截断；顶点编辑和平面着色支持保留全部影响。
 - 工具不提供新增拓扑、挤出、完整重拓扑、重新绑定骨骼或自动更改头身比例。它可以通过选择局部顶点塑形，不替代 Blender 的完整建模工作流。
 
@@ -88,7 +92,7 @@
 
 `tools/Compile.ps1` 检查 C# API 与语法，`tools/CheckAlgorithms.ps1` 执行实际减面算法。两者可通过参数指定本机 Unity 和 Mono 路径；托管算法测试不模拟 Mesh、Renderer 或资产系统。
 
-运行 `tools/RunUnityValidation.ps1`。它将当前插件复制到独立的 `ValidationProject`，执行 `ValidationRunner.Run`，输出 `artifacts/validation.txt`。21 项集成测试覆盖数据保留、保护、UV 接缝、取消、顶点/UV 编辑、超过 4 个蒙皮影响的处理、多帧表情、预览与 Prefab、Undo、退化面清理、大网格、全零 UV 通道、Shader、场景手柄在缩放和表情条件下的变换与撤销，以及预览显示控制、表情更新、多步历史和场景导航快捷键。导航检查使用真实 Unity Event，包含已被 Unity 使用的鼠标事件、右键释放、多个视图、修饰键与文本输入。
+运行 `tools/RunUnityValidation.ps1`。它将当前插件复制到独立的 `ValidationProject`，执行 `ValidationRunner.Run`，输出 `artifacts/validation.txt`。24 项集成测试覆盖数据保留、保护、UV 接缝、取消、顶点/UV 编辑、超过 4 个蒙皮影响的处理、多帧表情、预览与 Prefab、Undo、退化面清理、大网格、全零 UV 通道、Shader、场景手柄在缩放和表情条件下的变换与撤销、预览显示控制、表情更新、多步历史、场景导航快捷键与减面约束。导航检查使用真实 Unity Event，包含已被 Unity 使用的鼠标事件、右键释放、多个视图、修饰键与文本输入。
 
 `tools/BuildDistribution.py` 创建带稳定 GUID 的 `.unitypackage` 和 UPM ZIP，并检查归档结构。传入 `--use-unity-export` 时保留已由 Unity 原生导出的安装包，只重新打包 UPM ZIP 并核验源文件。验证记录会根据实际报告和测试项目中的源码对应关系更新，不使用固定的“测试通过”声明。
 

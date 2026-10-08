@@ -243,8 +243,13 @@ namespace StylizedMesh
             EditorGUILayout.HelpBox("保留率越小，减面越强。保护区域可能限制实际减面幅度；UV 接缝保护不能保证图案完全不变形。", MessageType.Info);
             using (new EditorGUILayout.HorizontalScope())
             {
-                if (GUILayout.Button("保守预设")) reduction = new ReduceSettings { quality = 0.65f, curvature = true };
+                if (GUILayout.Button("常规预设")) reduction = new ReduceSettings();
+                if (GUILayout.Button("保守预设")) reduction = ReduceSettings.Conservative();
+            }
+            using (new EditorGUILayout.HorizontalScope())
+            {
                 if (GUILayout.Button("头发 / 色块预设")) reduction = new ReduceSettings { quality = 0.2f, borders = false, boneBoundaries = true };
+                if (GUILayout.Button(new GUIContent("强减面预设", "允许简化开放边界和 UV 边缘，贴图拉伸风险增加；仍保留表情数据与手动保护。"))) reduction = ReduceSettings.Strong();
             }
             reduction.quality = EditorGUILayout.Slider("三角形保留率", reduction.quality, 0.01f, 1f);
             EditorGUILayout.LabelField($"当前目标约 {Mathf.RoundToInt(MeshOperations.TriangleCount(Active.working) * reduction.quality):N0} 个三角形");
@@ -252,20 +257,34 @@ namespace StylizedMesh
             reduction.uvSeams = EditorGUILayout.Toggle("保护 UV 接缝", reduction.uvSeams);
             reduction.uvFoldovers = EditorGUILayout.Toggle("保护 UV 折叠边界", reduction.uvFoldovers);
             reduction.materialBoundaries = EditorGUILayout.Toggle("保护材质交界", reduction.materialBoundaries);
-            reduction.movingBlendShapeVertices = EditorGUILayout.Toggle("保护表情移动区域", reduction.movingBlendShapeVertices);
+            reduction.movingBlendShapeVertices = EditorGUILayout.Toggle(new GUIContent("保护表情移动区域（固定顶点）", "这会锁住任何表情中发生移动的顶点，并保护周围一圈；关闭后仍保留表情名称和帧数据。"), reduction.movingBlendShapeVertices);
             reduction.boneBoundaries = EditorGUILayout.Toggle("保护骨骼主权重交界", reduction.boneBoundaries);
             reduction.curvature = EditorGUILayout.Toggle("优先保持曲面", reduction.curvature);
-            EditorGUILayout.HelpBox("脸部有大量形态键时，“保护表情移动区域”可能保护大部分顶点。关闭后仍保留表情名称与帧，但减面会近似表情形状，需要检查眨眼与口型。", MessageType.None);
+            EditorGUILayout.HelpBox("表情数据始终保留。“保护表情移动区域”会固定这些顶点，有大量表情的模型可能无法减面；关闭后会近似表情形状，请检查眨眼与口型。", MessageType.None);
+            if (!reduction.uvSeams || !reduction.uvFoldovers || !reduction.borders)
+                EditorGUILayout.HelpBox("当前允许简化部分边界。减面后请检查轮廓、UV 接缝和贴图拉伸。", MessageType.Info);
             if (GUILayout.Button("对当前部件减面", GUILayout.Height(32))) Safe(() =>
             {
                 EndDrag(); var session = Active;
                 int before = MeshOperations.TriangleCount(session.working);
-                var reduced = MeshOperations.Reduce(session.working, session.protectedVertices, reduction,
+                ReductionReport report;
+                var reduced = MeshOperations.Reduce(session.working, session.protectedVertices, reduction, out report,
                     progress => EditorUtility.DisplayCancelableProgressBar("网格减面", session.binding.label, progress));
+                if (!report.Reduced)
+                {
+                    DestroyImmediate(reduced);
+                    status = report.FullyProtected
+                        ? $"未减面：全部 {report.vertexCount:N0} 个顶点被保护。可选择常规预设，或关闭“保护表情移动区域”；手动保护仍需按需要解除。当前网格保留。"
+                        : $"未减面：{report.lockedVertexCount:N0}/{report.vertexCount:N0} 个顶点被固定，UV 接缝、开放边界或网格形状还可能限制简化。可尝试强减面预设，并检查贴图。当前网格保留。";
+                    return;
+                }
                 ownedMeshes.Add(reduced);
                 var mask = MeshOperations.RemapProtection(session.working, session.protectedVertices, reduced);
                 session.Replace(reduced, mask); RefreshGeometry();
-                status = $"减面完成：{before:N0} → {MeshOperations.TriangleCount(reduced):N0} 个三角形。请检查 UV 与表情。";
+                int after = MeshOperations.TriangleCount(reduced);
+                status = $"减面完成：{before:N0} → {after:N0} 个三角形；固定 {report.lockedVertexCount:N0}/{report.vertexCount:N0} 个顶点。请检查 UV 与表情。";
+                if (after > Mathf.RoundToInt(before * reduction.quality) + 2)
+                    status += " 未达到目标保留率，保护条件或网格结构限制了进一步简化；如需更强效果，可尝试强减面预设。";
             });
             DrawProtection();
             DrawExpressionPreview();

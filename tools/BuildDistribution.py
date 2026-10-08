@@ -129,6 +129,9 @@ def main():
             integration = f"{passed[1]}/{passed[2]} passed in Unity 2022.3.22f1, including scene handles, preview visibility, expression updates, stepwise undo and scene navigation shortcuts"
     import_report = ARTIFACTS / "import-validation.txt"
     imported = sources_match and import_report.exists() and "PASS Unity AssetDatabase.ImportPackage" in import_report.read_text(encoding="utf-8")
+    avatar_report = ARTIFACTS / "avatar-validation.json"
+    avatar = json.loads(avatar_report.read_text(encoding="utf-8")) if avatar_report.exists() else {}
+    avatar_tested = avatar.get("status") == "PASS" and avatar.get("source_sha256") == fingerprint.hexdigest()
     status = {
         "version": version,
         "source_sha256": fingerprint.hexdigest(),
@@ -136,7 +139,7 @@ def main():
         "managed_algorithm_tests": "7/7 passed",
         "unity_integration_tests": integration,
         "package_structure": "Verified; Unity ImportPackage and native export passed" if imported else "Verified; actual Unity import NOT RUN",
-        "real_avatar_tests": "NOT RUN: no Eku or Mafuyu model files provided",
+        "real_avatar_tests": f"PASS: {avatar['mesh_count']} meshes from a locally supplied FBX; reduction and expression/UV/skinning data checks" if avatar_tested else "NOT RUN for current sources",
     }
     (ARTIFACTS / "validation-status.json").write_text(json.dumps(status, ensure_ascii=False, indent=2), encoding="utf-8")
     (ARTIFACTS / "distribution-checks.txt").write_text(

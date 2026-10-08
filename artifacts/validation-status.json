@@ -1,9 +1,9 @@
 {
-  "version": "1.0.1",
-  "source_sha256": "0ad0f0b1e82499af819e15177a0cc46c56741c3e66ffefee7e3b84aeced6e023",
+  "version": "1.0.2",
+  "source_sha256": "7d2b8286b389c33e6d3ac051b7b1681d02212aeb1fe76efb6ac1880becc026a5",
   "csharp_compilation": "Passed against installed Unity 2022.3.22f1 assemblies",
   "managed_algorithm_tests": "7/7 passed",
-  "unity_integration_tests": "21/21 passed in Unity 2022.3.22f1, including scene handles, preview visibility, expression updates, stepwise undo and scene navigation shortcuts",
+  "unity_integration_tests": "24/24 passed in Unity 2022.3.22f1, including scene handles, preview visibility, expression updates, stepwise undo and scene navigation shortcuts",
   "package_structure": "Verified; Unity ImportPackage and native export passed",
-  "real_avatar_tests": "NOT RUN: no Eku or Mafuyu model files provided"
+  "real_avatar_tests": "PASS: 16 meshes from a locally supplied FBX; reduction and expression/UV/skinning data checks"
 }
